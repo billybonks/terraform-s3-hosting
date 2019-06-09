@@ -8,6 +8,11 @@ variable "app_domain" {
   type = "string"
 }
 
+variable "acm_arn" {
+  description = "The domain prefix for the bucket name, which comes after either `s3-asset-path`"
+  type = "string"
+}
+
 locals {
   website_url = "${var.subdomain}.${var.app_domain}"
 }
