@@ -48,7 +48,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = "${vars.acm_arn}"
+    acm_certificate_arn = "${var.acm_arn}"
     minimum_protocol_version = "TLSv1_2016"
     ssl_support_method = "sni-only"
   }
