@@ -9,17 +9,6 @@ resource "aws_s3_bucket" "frontend" {
   }
 }
 
-#https://github.com/traveloka/terraform-aws-acm-certificate/blob/master/main.tf
-resource "aws_acm_certificate" "frontend" {
-  domain_name       = "${var.domain_name}"
-  subject_alternative_names = "${var.san}"
-  validation_method = "DNS"
-
-  tags = {
-    ManagedBy     = "terraform"
-  }
-}
-
 resource "aws_cloudfront_distribution" "frontend" {
   origin {
     domain_name = "${aws_s3_bucket.frontend.bucket_regional_domain_name}"
@@ -59,7 +48,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = "${aws_acm_certificate.frontend.arn}"
+    acm_certificate_arn = "${vars.acm_arn}"
     minimum_protocol_version = "TLSv1_2016"
     ssl_support_method = "sni-only"
   }
