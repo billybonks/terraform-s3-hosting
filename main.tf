@@ -1,11 +1,22 @@
 # Add s3 bucket with a policy referencing the role we created above
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${local.website_url}"
+  bucket = "${var.domain_name}"
   acl = "public-read"
   force_destroy = true
   website {
     index_document = "index.html"
     error_document = "error.html"
+  }
+}
+
+#https://github.com/traveloka/terraform-aws-acm-certificate/blob/master/main.tf
+resource "aws_acm_certificate" "frontend" {
+  domain_name       = "${var.domain_name}"
+  subject_alternative_names = "${var.san}"
+  validation_method = "DNS"
+
+  tags = {
+    ManagedBy     = "terraform"
   }
 }
 
@@ -48,7 +59,9 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = "${var.acm_arn}"
+    acm_certificate_arn = "${aws_acm_certificate.frontend.arn}"
+    minimum_protocol_version = "TLSv1_2016"
+    ssl_support_method = "sni-only"
   }
 
   custom_error_response {
@@ -62,7 +75,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   default_root_object = "index.html"
 
   aliases = [
-    "${local.website_url}",
+    "${var.domain_name}",
   ]
 
   price_class = "PriceClass_200"
